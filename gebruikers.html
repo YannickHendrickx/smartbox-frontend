@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Slimme brievenbus</title>
+        <meta charset="UTF-8">
+        <meta name="author" content="Yannick Hendrickx">
+        <script defer src="https://unpkg.com/alpinejs@3.5.0/dist/cdn.min.js"></script>
+        
+        <script>
+            function dataPeople() {
+                return {
+                    url: "https://randomuser.me/api/?results=10&nat=gb,us,es&seed=test",
+                    people: [],
+                    selected: null,
+                    search: "",
+                    fetchPeople() {
+                    fetch(this.url, { credentials: "omit" }) // ensure browsers don’t include credentials in the request
+                        .then((response) => response.json())
+                        .then((results) => {
+                        this.people = results.results;
+                        })
+                        .catch((err) => console.log(`error: ${err}`));
+                    },
+                    searchPeople() {
+                    return this.people.filter((person) =>
+                        `${person.name.first} ${person.name.last}`
+                        .toLowerCase()
+                        .includes(this.search.toLowerCase())
+                    );
+                    }
+                };
+            }
+        </script>
+
+        <style>
+            .endpoint {
+                border: 1px solid #000;
+                border-radius: 16px;
+                padding: 10px;
+                background-color: #a8dadc;
+                text-align: left;
+                width: 570px;
+            }
+            #page {
+                
+            }
+            #logout > .endpoint {
+                color: #ffffff;
+                background-color: #1d3557;
+            }
+            #header {
+                color: #ffffff;
+            }
+            h1 {
+                padding-left: 10px;
+            }
+            body {
+                background-color: #457b9d;
+            }
+            #students, #users, #projects, #student, #student > ul {
+                list-style: none;
+            }
+            #demo {
+                color: #03045e;
+                font-weight: bold;
+            }
+            .hidden {
+                display: none;
+            }
+            .visible {
+                display: block;
+            }
+            #public, #back {
+                border: 1px solid #000;
+                border-radius: 16px;
+                padding: 10px;
+                color: #ffffff;
+                background-color: #1d3557;
+                text-align: left;
+                width: 570px;
+            }
+            [x-cloak] {
+                display: none;
+            }
+
+        </style>
+        <script language="javascript">
+            function api() {
+                return 'http://127.0.0.1:8000';
+            }
+            function setCookie(cname, cvalue, exhours) {
+                const d = new Date();
+                d.setTime(d.getTime() + (exhours*60*60*1000));
+                let expires = 'expires='+ d.toUTCString();
+                document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
+                return '';
+            }
+            function getCookie(cname, refresh=true) {
+                let name = cname + '=';
+                let decodedCookie = decodeURIComponent(document.cookie);
+                let ca = decodedCookie.split(';');
+                for(let i = 0; i <ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        value = c.substring(name.length, c.length)
+                        if(refresh) {
+                            setCookie(cname, value, 0.5);
+                        }
+                        return value;
+                    }
+                }
+                return '';
+            }
+            function delCookie(cname) {
+                const d = new Date();
+                d.setTime(d.getTime() -1);
+                let expires = 'expires=' + d.toUTCString();
+                document.cookie = cname + '="";' + expires + ';path=/';
+            }
+            
+            window.onload = function(e) {
+                let token = getCookie('token', false);
+                if( token == ''){
+                    let loginDiv = document.getElementById('login');
+                    loginDiv.classList.replace('hidden', 'visible');
+                } else {
+                    let actionsDiv = document.getElementById('actions');
+                    actionsDiv.classList.replace('hidden', 'visible');
+                    let backDiv = document.getElementById('back');
+                    backDiv.classList.add('hidden');
+                    let tokenInfo = document.getElementById('tokenInfo');
+                    tokenInfo.innerHTML = token;
+                }
+            }
+        </script>
+        <script>
+            
+        </script>
+    </head>
+    <body>
+        <div class="container mx-auto px-4 sm:px-8 max-w-screen-md text-gray-700">
+            <h1 class="text-5xl text-center mb-2">Gebruikers</h1>
+            <hr class="py-2">
+            <section class="mb-12">
+              <div x-data="dataPeople()" x-init="fetchPeople()">
+                <input type="search" x-ref="searchField" x-model="search" x-on:keydown.window.prevent.slash="$refs.searchField.focus()" placeholder="Who are you looking for?" type="search" class="block w-full bg-gray-200 focus:outline-none focus:bg-white focus:shadow text-gray-700 font-bold rounded-lg px-4 py-3 my-3" />
+                <p x-show="search !== ''" class="my-2">
+                  You are looking for <span x-text="search" class="font-bold"></span>
+                </p>
+                <template x-for="(person, index) in searchPeople()" :key="index">
+                  <div class="md:flex mb-4 border-l-4 rounded cursor-pointer hover:bg-indigo-200 transition duration-300 ease-in-out" :class="{ 'border-4' : selected == index }" @click="selected !== index ? selected = index : selected = null">
+                    <div class="mt-4 md:mt-0 p-4">
+                      <div class="flex items-center">
+                        <h3 class="uppercase tracking-wide text-sm text-indigo-600 font-bold text-lg" x-text="person.name.first + ' ' + person.name.last"></h3>
+                      </div>
+                      <div x-show="selected == index" class="mt-4">
+                        <div>
+                          <span class="ml-2" x-text="person.email"></span>
+                        </div>
+                        <div class="text-gray-600">
+                            <button>Geneer nieuwe code</button>
+                        </div>
+                        <div class="text-gray-600">
+                            <button>Toegang ontnemen</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </section>
+          </div>
+    </body>

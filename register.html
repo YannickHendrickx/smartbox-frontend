@@ -90,6 +90,10 @@
                 let expires = 'expires=' + d.toUTCString();
                 document.cookie = cname + '="";' + expires + ';path=/';
             }
+
+            function replaceFunction(){
+                location.assign("index.html");
+            }
             
             window.onload = function(e) {
                 let token = getCookie('token', false);
@@ -112,83 +116,11 @@
     </head>
     <body><center>
         <div id="header">
-            <img src="https://www.svgrepo.com/show/262480/clouds-cloud.svg" width="100" height="100">
+            <img src="">
             <h1>Slimme brievenbus</h1>
         </div>
         <div id="page">
             <div id="actions" class="hidden">
-                <!-- GET all users -->
-                <div class="endpoint auth" x-data="{
-                    responsedata: '',
-                    async getUsers() {
-                        this.responsedata = await (
-                            await fetch(
-                                api() + '/users/',
-                                {
-                                    method: 'GET',
-                                    headers: {
-                                        'Content-type': 'application/json; charset=UTF-8',
-                                        'Authorization': 'Bearer ' + getCookie('token')
-                                    }
-                                }
-                            )
-                        ).json();
-                        
-                        if(typeof this.responsedata.detail === 'undefined'){
-                            let users = document.getElementById('users');
-                            users.innerHTML = '';
-                            for (let i = 0; i < this.responsedata.length; i++) {
-                                let li = document.createElement('li');
-                                if(this.responsedata[i].is_active === true){
-                                    li.innerHTML = '[' + this.responsedata[i].id + '] ' + this.responsedata[i].name;
-                                } else {
-                                    li.innerHTML = '[' + this.responsedata[i].id + '] ' + this.responsedata[i].name + ' <em>(inactive)</em>';
-                                }
-                                users.appendChild(li);
-                            }
-                        } else {
-                            alert(JSON.stringify(this.responsedata.detail));
-                        }
-                    }
-                }">
-                    <p><strong>Get all users:</strong></p>
-                    <button x-on:click="getUsers">Get all users</button>
-                    <p><ul id="users"></ul></p>
-                </div>
-                <!-- GET user by id -->
-                <div class="endpoint auth" x-data="{
-                    responsedata: '',
-                    iduser: '1',
-                    async getUser() {
-                        this.responsedata = await (
-                            await fetch(
-                                api() + '/users/' + this.iduser,
-                                {
-                                    method: 'GET',
-                                    headers: {
-                                        'Content-type': 'application/json; charset=UTF-8',
-                                        'Authorization': 'Bearer ' + getCookie('token')
-                                    }
-                                }
-                            )
-                        ).json();
-                        
-                        if(typeof this.responsedata.detail === 'undefined'){
-                            let user = document.getElementById('user');
-                            user.innerHTML = '';
-                            let li = document.createElement('li');
-                            li.innerHTML = '[' + this.responsedata.id + '] ' + this.responsedata.name;
-                            user.appendChild(li);
-                        } else {
-                            alert(JSON.stringify(this.responsedata.detail));
-                        }
-                    }
-                }">
-                    <p><strong>Get specific user:</strong></p>
-                    <input type="text" x-model="iduser">
-                    <button x-on:click="getUser">Get user</button>
-                    <p><ul id="user"></ul></p>
-                </div>           
                 <div id="logout">
                     <!-- GET /users/me -->
                     <div class="endpoint auth" x-data="{
@@ -234,6 +166,18 @@
                     responsedata: '',
                     username: '',
                     password: '',
+					async addUser() {
+                        this.responsedata = await (await fetch(api() + '/users/', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                name: this.username,
+                                password: this.password
+                            }),
+                            headers: {
+                                'Content-type': 'application/json; charset=UTF-8'
+                            }
+                        })).json();
+                    },
                     async addToken() {
                         let myHeaders = new Headers();
                         myHeaders.append(
@@ -283,27 +227,13 @@
                         } else {
                             alert(JSON.stringify(this.responsedata.detail));
                         }
+                        location.assign('index.html')
                     }
                 }">
-                    <p>Loginscherm:</p>
+                    <p>Registreren:</p>
                     <input type="text" x-model="username">
                     <input type="password" x-model="password">
-                    <button x-on:click="addToken">login</button>
-                </div>
-                <div id="public">
-                    <script>
-                        function show_public() {
-                            let auth = document.querySelectorAll('.auth');
-                            auth.forEach(element => {
-                                element.classList.add('hidden');
-                            });
-                            let loginDiv = document.getElementById('login');
-                            loginDiv.classList.replace('visible', 'hidden');
-                            let actionsDiv = document.getElementById('actions');
-                            actionsDiv.classList.replace('hidden', 'visible');
-                        }
-                    </script>
-                    <button onclick="show_public()">Public access only</button>
+                    <button x-on:click="addUser(); addToken()">Doorgaan</button>
                 </div>
             </div>
         </div>
