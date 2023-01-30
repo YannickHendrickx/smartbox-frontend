@@ -5,33 +5,59 @@
         <meta charset="UTF-8">
         <meta name="author" content="Yannick Hendrickx">
         <script defer src="https://unpkg.com/alpinejs@3.5.0/dist/cdn.min.js"></script>
-        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
         <style>
-            .endpoint {
-                border: 1px solid #000;
-                border-radius: 16px;
-                padding: 10px;
-                background-color: #a8dadc;
-                text-align: left;
-                width: 570px;
+            @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+            nav {
+                position: fixed;
+                z-index: 1000;
+                top: 0;
+                bottom: 0;
+                width: 200px;
+                background-color: #D3D3D3;
+                transform: translate3d(-208px, 0, 0);
+                transition: transform 0.4s ease;
             }
-            #page {
-                
+            i {
+                margin: 10px;
+            }
+            ul a:hover {
+                background-color:  #ff4d4d;
+            }
+            .active-nav nav {
+                transform: translate3d(0, 0, 0);
+            }
+            nav ul {
+                list-style: none;
+                margin-top: 100px;
+            }
+            nav ul li a {
+                text-decoration: none;
+                display: block;
+                text-align: left;
+                color: rgb(0, 0, 0);
+                padding: 10px 0;
+                margin-left: 10px;
+            }
+            .nav-toggle-btn {
+                display: block;
+                position: absolute;
+                left: 200px;
+            }
+            .content {
+                padding-top: 300px;
+                height: 2000px;
+                text-align: center;
+                transition: transform 0.4s ease;
+            }
+            .active-nav .content {
+                transform: translate3d(200px, 0, 0);
             }
             #logout > .endpoint {
                 color: #ffffff;
                 background-color: #1d3557;
             }
-            #header {
-                color: #ffffff;
-            }
-            h1 {
-                padding-left: 10px;
-            }
-            body {
-                background-color: #457b9d;
-            }
-            #students, #users, #projects, #student, #student > ul {
+            #users, #users, #logs, #user, #user > ul {
                 list-style: none;
             }
             #demo {
@@ -53,6 +79,37 @@
                 text-align: left;
                 width: 570px;
             }
+            .right {
+                text-align: right;
+            }
+            .getbutton {
+                background-color: rgb(255, 30, 86);
+                border-radius: .5rem;
+                box-sizing: border-box;
+                color: #FFFFFF;
+                display: flex;
+                font-size: 16px;
+                justify-content: center;
+                padding: 1rem 1.75rem;
+                text-decoration: none;
+                width: 70%;
+                border: 0;
+                cursor: pointer;
+                user-select: none;
+                -webkit-user-select: none;
+                touch-action: manipulation;
+                margin: 10px auto;
+        }
+        
+        .getbutton:hover {
+            background-color: rgb(244, 7, 66);
+        }
+        
+        @media (min-width: 768px) {
+            .getbutton {
+            padding: 1rem 2rem;
+            }
+        }
         </style>
         <script language="javascript">
             function api() {
@@ -94,8 +151,7 @@
             window.onload = function(e) {
                 let token = getCookie('token', false);
                 if( token == ''){
-                    let loginDiv = document.getElementById('login');
-                    loginDiv.classList.replace('hidden', 'visible');
+                    location.assign("login.html")
                 } else {
                     let actionsDiv = document.getElementById('actions');
                     actionsDiv.classList.replace('hidden', 'visible');
@@ -106,97 +162,39 @@
                 }
             }
         </script>
-        <script>
-            
-        </script>
     </head>
-    <body><center>
+    <body style="margin-left: 0px;">
+        <nav>
+            <a href="#" class="nav-toggle-btn"><i class="fa fa-bars"></i></a>
+            <ul style="padding-left: 0px;">
+                <li class ="a:hover"><a href="#"><i class="fa-sharp fa-solid fa-house"></i>Home </a></li>
+                <li><a href="#"><i class="fa-solid fa-database"></i>Logs</a></li>
+                <li><a href="gebruikers.html"><i class="fa-solid fa-person"></i>Toegangscontrole</a></li>
+                <li><a href="#"><i class="fa-solid fa-box"></i>Brievenbus</a></li>
+                <li style="margin-left: 10px;"><button onclick="delCookie('token'); window.location.reload();">Logout</button></li>
+                <div id="logout">
+                    <div id="back">
+                        <button onclick="window.location.reload();">Back</button>
+                    </div>
+                </div>
+            </ul>     
+        </nav>
+        <div class="center" style="margin-left: 8px;">
         <div id="header">
-            <img src="https://www.svgrepo.com/show/262480/clouds-cloud.svg" width="100" height="100">
-            <h1>Slimme brievenbus</h1>
+            <h1 style="margin-top: 30px; margin-left: 10px;">Home</h1>
         </div>
         <div id="page">
             <div id="actions" class="hidden">
-                <!-- GET all users -->
-                <div class="endpoint auth" x-data="{
-                    responsedata: '',
-                    async getUsers() {
-                        this.responsedata = await (
-                            await fetch(
-                                api() + '/users/',
-                                {
-                                    method: 'GET',
-                                    headers: {
-                                        'Content-type': 'application/json; charset=UTF-8',
-                                        'Authorization': 'Bearer ' + getCookie('token')
-                                    }
-                                }
-                            )
-                        ).json();
-                        
-                        if(typeof this.responsedata.detail === 'undefined'){
-                            let users = document.getElementById('users');
-                            users.innerHTML = '';
-                            for (let i = 0; i < this.responsedata.length; i++) {
-                                let li = document.createElement('li');
-                                if(this.responsedata[i].is_active === true){
-                                    li.innerHTML = '[' + this.responsedata[i].id + '] ' + this.responsedata[i].name;
-                                } else {
-                                    li.innerHTML = '[' + this.responsedata[i].id + '] ' + this.responsedata[i].name + ' <em>(inactive)</em>';
-                                }
-                                users.appendChild(li);
-                            }
-                        } else {
-                            alert(JSON.stringify(this.responsedata.detail));
-                        }
-                    }
-                }">
-                    <p><strong>Get all users:</strong></p>
-                    <button x-on:click="getUsers">Get all users</button>
-                    <p><ul id="users"></ul></p>
-                </div>
-                <!-- GET user by id -->
-                <div class="endpoint auth" x-data="{
-                    responsedata: '',
-                    iduser: '1',
-                    async getUser() {
-                        this.responsedata = await (
-                            await fetch(
-                                api() + '/users/' + this.iduser,
-                                {
-                                    method: 'GET',
-                                    headers: {
-                                        'Content-type': 'application/json; charset=UTF-8',
-                                        'Authorization': 'Bearer ' + getCookie('token')
-                                    }
-                                }
-                            )
-                        ).json();
-                        
-                        if(typeof this.responsedata.detail === 'undefined'){
-                            let user = document.getElementById('user');
-                            user.innerHTML = '';
-                            let li = document.createElement('li');
-                            li.innerHTML = '[' + this.responsedata.id + '] ' + this.responsedata.name;
-                            user.appendChild(li);
-                        } else {
-                            alert(JSON.stringify(this.responsedata.detail));
-                        }
-                    }
-                }">
-                    <p><strong>Get specific user:</strong></p>
-                    <input type="text" x-model="iduser">
-                    <button x-on:click="getUser">Get user</button>
-                    <p><ul id="user"></ul></p>
-                </div>           
-                <div id="logout">
-                    <!-- GET /users/me -->
+                <div id="ontgrendelen">
+                    <h4 class="right" style="margin-bottom: 0px;">Ontgrendelen</h4>
+                    <hr>
+                    <!-- open brievenvak -->
                     <div class="endpoint auth" x-data="{
                         responsedata: '',
-                        async getUserMe() {
+                        async getVak1() {
                             this.responsedata = await (
                                 await fetch(
-                                    api() + '/users/me',
+                                    api() + '/lock/1',
                                     {
                                         method: 'GET',
                                         headers: {
@@ -206,106 +204,90 @@
                                     }
                                 )
                             ).json();
-                            
-                            if(typeof this.responsedata.detail === 'undefined'){
-                                alert(
-                                    '𝗡𝗮𝗺𝗲: \n' +
-                                    this.responsedata.name + '\n' +
-                                    '𝗧𝗼𝗸𝗲𝗻: \n' +
-                                    getCookie('token', false)
-                                );
-                            } else {
-                                alert(JSON.stringify(this.responsedata.detail));
-                            }
+                        },
+                        async getVak2() {
+                            this.responsedata = await (
+                                await fetch(
+                                    api() + '/lock/2',
+                                    {
+                                        method: 'GET',
+                                        headers: {
+                                            'Content-type': 'application/json; charset=UTF-8',
+                                            'Authorization': 'Bearer ' + getCookie('token')
+                                        }
+                                    }
+                                )
+                            ).json();
+                        },
+                        async getVak3() {
+                            this.responsedata = await (
+                                await fetch(
+                                    api() + '/lock/3',
+                                    {
+                                        method: 'GET',
+                                        headers: {
+                                            'Content-type': 'application/json; charset=UTF-8',
+                                            'Authorization': 'Bearer ' + getCookie('token')
+                                        }
+                                    }
+                                )
+                            ).json();
                         }
                     }">
-                        <span id="tokenInfo" style="display:none;"></span>
-                        <button x-on:click="getUserMe">Current user info</button>
-                        <button onclick="delCookie('token'); window.location.reload();">Logout</button>
-                    </div>
-                    <div id="back">
-                        <button onclick="window.location.reload();">Back</button>
-                    </div>
+                    <button class="getbutton" x-on:click="getVak1">brievenvak</button>
+                    <button class="getbutton" x-on:click="getVak2">pakketvak 1</button>
+                    <button class="getbutton" x-on:click="getVak3">pakketvak 2</button>
                 </div>
-            </div> 
-            <div id="login" class="hidden">
-                <!-- POST /token -->
+                <div id="overzichtlogs">
+                    <h4 class="right" style="margin-bottom: 0px;">Recente leveringen</h4>
+                    <hr style="width:100%; margin: auto;">
+                    <!-- GET request for getting all logs -->
                 <div class="endpoint" x-data="{
                     responsedata: '',
-                    username: '',
-                    password: '',
-                    async addToken() {
-                        let myHeaders = new Headers();
-                        myHeaders.append(
-                            'Content-Type',
-                            'application/x-www-form-urlencoded'
-                        );
-
-                        let urlencoded = new URLSearchParams();
-                        urlencoded.append('username', this.username);
-                        urlencoded.append('password', this.password);
-
-                        let requestOptions = {
-                            method: 'POST',
-                            headers: myHeaders,
-                            body: urlencoded,
-                            redirect: 'follow'
-                        };
-                            
+                    skip: 0,
+                    limit: 100,
+                    async getLogs() {
                         this.responsedata = await (
                             await fetch(
-                                api() + '/token',
-                                requestOptions
+                                api() + '/logs/?skip=' + this.skip + '&limit=' + this.limit,
+                                {
+                                    method: 'GET',
+                                    headers: {
+                                        'Content-type': 'application/json; charset=UTF-8'
+                                    }
+                                }
                             )
                         ).json();
                         
                         if(typeof this.responsedata.detail === 'undefined'){
-                            setCookie(
-                                'token', 
-                                this.responsedata.access_token,
-                                0.5
-                            );
-                            if(getCookie('token', false) !== ''){
-                                let loginDiv = document.getElementById('login');
-                                loginDiv.classList.replace('visible', 'hidden');
-                                let actionsDiv = document.getElementById('actions');
-                                actionsDiv.classList.replace('hidden', 'visible');
-                                let backDiv = document.getElementById('back');
-                                backDiv.classList.add('hidden');
-                                let tokenInfo = document.getElementById('tokenInfo');
-                                tokenInfo.innerHTML = this.responsedata.access_token;
-                            } else {
-                                alert(
-                                    'Cookies might be disabled in your browser.\n'+
-                                    'Or you might be accessing this page as local file on Chrome.'
-                                );
+                            let logs = document.getElementById('logs');
+                            logs.innerHTML = '';
+                            for (let i = 0; i < this.responsedata.length; i++) {
+                                let li = document.createElement('li');
+                                li.innerHTML = this.responsedata[i].logName;
+                                logs.appendChild(li);
                             }
                         } else {
                             alert(JSON.stringify(this.responsedata.detail));
                         }
                     }
-                }">
-                    <p>Loginscherm:</p>
-                    <input type="text" x-model="username">
-                    <input type="password" x-model="password">
-                    <button x-on:click="addToken">login</button>
-                </div>
-                <div id="public">
-                    <script>
-                        function show_public() {
-                            let auth = document.querySelectorAll('.auth');
-                            auth.forEach(element => {
-                                element.classList.add('hidden');
-                            });
-                            let loginDiv = document.getElementById('login');
-                            loginDiv.classList.replace('visible', 'hidden');
-                            let actionsDiv = document.getElementById('actions');
-                            actionsDiv.classList.replace('hidden', 'visible');
-                        }
-                    </script>
-                    <button onclick="show_public()">Public access only</button>
+                }"x-init="getLogs">
+                    <p><ul id="logs"></ul></p>
+                </div>           
+                    
                 </div>
             </div>
         </div>
-    </center></body>
+    </div>
+    <script type="text/javascript">
+        (function() {
+            var bodyEl = $('body'),
+                navToggleBtn = bodyEl.find('.nav-toggle-btn');
+            navToggleBtn.on('click', function(e) {
+                bodyEl.toggleClass('active-nav');
+                e.preventDefault();
+            }); 
+        })();
+    </script>
+</body>
 </html>

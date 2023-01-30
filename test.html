@@ -5,8 +5,55 @@
         <meta charset="UTF-8">
         <meta name="author" content="Yannick Hendrickx">
         <script defer src="https://unpkg.com/alpinejs@3.5.0/dist/cdn.min.js"></script>
-        <!-- styles -->
-        <link href="custom.css" rel="stylesheet"/>
+        
+        <style>
+            .endpoint {
+                border: 1px solid #000;
+                border-radius: 16px;
+                padding: 10px;
+                background-color: #a8dadc;
+                text-align: left;
+                width: 570px;
+            }
+            #page {
+                
+            }
+            #logout > .endpoint {
+                color: #ffffff;
+                background-color: #1d3557;
+            }
+            #header {
+                color: #ffffff;
+            }
+            h1 {
+                padding-left: 10px;
+            }
+            body {
+                background-color: #457b9d;
+            }
+            #students, #users, #projects, #student, #student > ul {
+                list-style: none;
+            }
+            #demo {
+                color: #03045e;
+                font-weight: bold;
+            }
+            .hidden {
+                display: none;
+            }
+            .visible {
+                display: block;
+            }
+            #public, #back {
+                border: 1px solid #000;
+                border-radius: 16px;
+                padding: 10px;
+                color: #ffffff;
+                background-color: #1d3557;
+                text-align: left;
+                width: 570px;
+            }
+        </style>
         <script language="javascript">
             function api() {
                 return 'http://127.0.0.1:8000';
@@ -63,8 +110,15 @@
                 }
             }
         </script>
+        <script>
+            
+        </script>
     </head>
-    <body>
+    <body><center>
+        <div id="header">
+            <img src="">
+            <h1>Slimme brievenbus</h1>
+        </div>
         <div id="page">
             <div id="actions" class="hidden">
                 <div id="logout">
@@ -176,19 +230,12 @@
                         location.assign('index.html')
                     }
                 }">
-                    <h1>Registreren</h1>
-                    <label class= "labelkleur" for="username"><b>gebruikersnaam</b></label>
-                    <input type="text" x-model="username" placeholder="uw gebruikersnaam">
-                    <label class= "labelkleur" for="password"><b>Wachtwoord</b></label>
-                    <input type="password" x-model="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;">
-                    <input type="checkbox" id="agreement" name="agreement" value="Yes">
-                    <label for="agreement"> Door een account te creeëren gaat u akkoord met de <a href="#">Terms & Privacy</a>.</label><br>
-                    <button class="registerbutton" x-on:click="addUser(); addToken()">Doorgaan</button>
-                    <div class="container signin">
-                        <p>Heb je al een account? <a href="index.html">Sign in</a></p>
-                    </div>
+                    <p>Registreren:</p>
+                    <input type="text" x-model="username">
+                    <input type="password" x-model="password">
+                    <button x-on:click="addUser(); addToken()">Doorgaan</button>
                 </div>
             </div>
         </div>
-    </body>
+    </center></body>
 </html>

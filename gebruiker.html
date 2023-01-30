@@ -11,24 +11,8 @@
         <script src="https://kit.fontawesome.com/2b95cf3289.js" crossorigin="anonymous"></script>
 
         <style>
-            .endpoint {
-                border: 1px solid #000;
-                border-radius: 16px;
-                padding: 10px;
-                background-color: #a8dadc;
-                text-align: left;
-                width: 570px;
-            }
-            #logout > .endpoint {
-                color: #ffffff;
-                background-color: #1d3557;
-            }
-            #header {
-                color: #ffffff;
-            }
-            #demo {
-                color: #03045e;
-                font-weight: bold;
+            h1 {
+                padding-left: 10px;
             }
             .hidden {
                 display: none;
@@ -36,43 +20,17 @@
             .visible {
                 display: block;
             }
-            #public, #back {
-                border: 1px solid #000;
-                border-radius: 16px;
-                color: #ffffff;
-                background-color: #1d3557;
-                text-align: left;
-                width: 570px;
-            }
-            [x-cloak] {
-                display: none;
-            }
-            #gebruikers {
-                list-style: none;
-            }
-            a:link {
-                text-decoration: none;
-                color: black;
-            }
-
-            a:visited {
-                text-decoration: none;
-                color: black;
-            }
-
-            a:hover {
-                text-decoration: none;
-            }
-
-            a:active {
-                text-decoration: none;
-            }
             .center {
                 text-align: center;
             }
-            #input {
-                width: 80%;
-                text-align:center;
+            .center p {
+                text-align: left;
+            }
+            button {
+                width: 100%;
+            }
+            img {
+                border-radius: 50%;
             }
         </style>
         <script language="javascript">
@@ -128,28 +86,65 @@
         </script>
     </head>
     <body>
-        <header class="center">
-            <p><a href="index.html"><i class='fas fa-arrow-left'></i></a>&emsp;&emsp;&emsp;&emsp; Toegangsbeheer &emsp;&emsp;&emsp;&emsp;<a href="#"><i class="fa-solid fa-plus"></i></a></p>
-            <input id="input" type="text" placeholder="&#128269; Zoek op gebruiker">
+        <header>
+            <a href="gebruikers.html"><i class='fas fa-arrow-left'></i></a>
+            <h1>Toegangsbeheer</h1>
         </header>
-        
-        <ul id="gebruikers"></ul>
-        
-        <script>
-            $.get(api() + "/users/", function(data, status){
-                for (var i = 0; i < data.length; i++) {
-                    $("#gebruikers").append("<li><a href='gebruiker.html?user=" + data[i].id + "'>" + data[i].name + "</li>")
-                }
-            });
-            
-            $(document).ready(function(){
-                $("#input").on("keyup", function() {
-                    var value = $(this).val().toLowerCase();
-                    $("#gebruikers li").filter(function() {
-                        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        <section class="center">
+            <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Profielfoto" width="100" height="100">
+            <h3 id="gebruiker"></h3>
+            <hr>
+            <p>Pincode:&emsp;&emsp;<span id="access-code"></span></p>
+            <div id="status" class="hidden"></div>
+            <div id="hashed-password" class="hidden"></div>
+            <hr>
+            <!-- PUT request for updating pin -->
+            <div class="endpoint auth" x-data="{
+                responsedata: '',
+                name: '',
+                password: '',
+                access_code:'1357',
+                async addUser() {
+                    this.responsedata = await (await fetch(api() + '/users/', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            name: this.name
+                            password: this.password
+                            is_active: true
+                            access_code: this.access_code
+                        }),
+                        headers: {
+                            'Content-type': 'application/json; charset=UTF-8',
+                            'Authorization': 'Bearer ' + getCookie('token')
+                        }
+                    })).json();
+                },
+            }">
+                <p><strong>Add a new user to the application:</strong></p>
+                <input type="text" x-model="newuser">
+                <button x-on:click="addUser">Genereer nieuwe code</button>
+            <button onclick="test()">Toegang ontnemen</button>
+
+            <script>
+                var params = getUrlVars()
+                if(params.user == "" | params.user == null) {
+                    // No user specified
+                    // TODO: redirect to userlist
+                    alert("ERROR: no user specified!")
+                    window.location.href = "gebruikers.html"
+                } else {
+                    $.get(api() + "/users/" + params.user, function(data, status){
+                        $("#gebruiker").html(data.name)
+                        $("#access-code").html(data.access_code)
+                        $("#status").html(data.is_active)
+                        $("#hashed-password").html(data.hashed_password)
                     });
-                });
-            });
-        </script>
+                }
+                
+                var test = function() {
+                    alert("Hashed password: " + $("#hashed-password").text())
+                }
+            </script>
+        </section>
     </body>
 </html>

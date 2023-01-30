@@ -54,17 +54,12 @@
                     let loginDiv = document.getElementById('login');
                     loginDiv.classList.replace('hidden', 'visible');
                 } else {
-                    let actionsDiv = document.getElementById('actions');
-                    actionsDiv.classList.replace('hidden', 'visible');
-                    let backDiv = document.getElementById('back');
-                    backDiv.classList.add('hidden');
-                    let tokenInfo = document.getElementById('tokenInfo');
-                    tokenInfo.innerHTML = token;
+                    location.assign('index.html')
                 }
             }
         </script>
     </head>
-    <body>
+    <body><div class= "center">
         <div id="page">
             <div id="actions" class="hidden">
                 <div id="logout">
@@ -173,22 +168,25 @@
                         } else {
                             alert(JSON.stringify(this.responsedata.detail));
                         }
-                        location.assign('index.html')
+                        location.replace('index.html')
                     }
                 }">
-                    <h1>Registreren</h1>
-                    <label class= "labelkleur" for="username"><b>gebruikersnaam</b></label>
+                <div id="header" class="center">
+                    <img src="https://www.svgrepo.com/show/262480/clouds-cloud.svg" width="100" height="100">
+                    <h3>Slimme brievenbus</h3>
+                </div>
+                    <h1>Login</h1>
+                    <p>Hallo daar! Login om je brievenbus te beheren.</p>
+                    <label for="username"><b>gebruikersnaam</b></label>
                     <input type="text" x-model="username" placeholder="uw gebruikersnaam">
-                    <label class= "labelkleur" for="password"><b>Wachtwoord</b></label>
+                    <label for="password"><b>Wachtwoord</b></label>
                     <input type="password" x-model="password" placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;">
-                    <input type="checkbox" id="agreement" name="agreement" value="Yes">
-                    <label for="agreement"> Door een account te creeëren gaat u akkoord met de <a href="#">Terms & Privacy</a>.</label><br>
                     <button class="registerbutton" x-on:click="addUser(); addToken()">Doorgaan</button>
                     <div class="container signin">
-                        <p>Heb je al een account? <a href="index.html">Sign in</a></p>
+                        <p>Heb je nog geen account? <a href="register.html">Registreren</a></p>
                     </div>
                 </div>
             </div>
         </div>
-    </body>
+    </div></body>
 </html>
