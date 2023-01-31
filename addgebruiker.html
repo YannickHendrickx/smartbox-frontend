@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Slimme brievenbus</title>
+        <meta charset="UTF-8">
+        <meta name="author" content="Yannick Hendrickx">
+        <!--<script defer src="https://unpkg.com/alpinejs@3.5.0/dist/cdn.min.js"></script>-->
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+        <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+        <script src="https://kit.fontawesome.com/2b95cf3289.js" crossorigin="anonymous"></script>
+        <script defer src="https://unpkg.com/alpinejs@3.5.0/dist/cdn.min.js"></script>
+
+        <style>
+            h1 {
+                padding-left: 10px;
+            }
+            .hidden {
+                display: none;
+            }
+            .visible {
+                display: block;
+            }
+            .center {
+                text-align: center;
+            }
+            .center p {
+                text-align: left;
+            }
+            button {
+                width: 100%;
+            }
+            img {
+                border-radius: 50%;
+            }
+        </style>
+        <script language="javascript">
+            function api() {
+                return 'http://127.0.0.1:8000';
+            }
+
+            function setCookie(cname, cvalue, exhours) {
+                const d = new Date();
+                d.setTime(d.getTime() + (exhours*60*60*1000));
+                let expires = 'expires='+ d.toUTCString();
+                document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
+                return '';
+            }
+
+            function getCookie(cname, refresh=true) {
+                let name = cname + '=';
+                let decodedCookie = decodeURIComponent(document.cookie);
+                let ca = decodedCookie.split(';');
+                for(let i = 0; i <ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        value = c.substring(name.length, c.length)
+                        if(refresh) {
+                            setCookie(cname, value, 0.5);
+                        }
+                        return value;
+                    }
+                }
+                return '';
+            }
+
+            function delCookie(cname) {
+                const d = new Date();
+                d.setTime(d.getTime() -1);
+                let expires = 'expires=' + d.toUTCString();
+                document.cookie = cname + '="";' + expires + ';path=/';
+            }
+        </script>
+    </head>
+    <body>
+        <header>
+            <a href="gebruikers.html"><i class='fas fa-arrow-left' style="color: rgb(255, 30, 86);"></i></a>
+            <h1>Gebruiker toevoegen</h1>
+        </header>
+        <section class="center">
+            <!-- POST request for creating new user -->
+            <div class="endpoint auth" x-data="{
+                responsedata: '',
+                newuser: '',
+                password: 'test',
+                async addUser() {
+                    this.responsedata = await (await fetch(api() + '/users/', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            name: this.newuser,
+                            password: this.password
+                        }),
+                        headers: {
+                            'Content-type': 'application/json; charset=UTF-8',
+                            'Authorization': 'Bearer ' + getCookie('token')
+                        }
+                    })).json();
+                },
+            }">
+            <img src="https://www.w3schools.com/howto/img_avatar.png" alt="Profielfoto" width="100" height="100">
+            <h3 id="gebruiker"></h3>
+            <hr>
+            <p>Naam:&emsp;&emsp;<em><span x-text="responsedata.name"></span></em></p>
+            <p id="hashed-password" class="hidden"></p>
+            <hr>
+            <input type="text" x-model="newuser">
+                <button x-on:click="addUser">Gebruiker toevoegen</button>
+            </div>
+        </section>
+    </body>
+</html>

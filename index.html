@@ -99,17 +99,17 @@
                 -webkit-user-select: none;
                 touch-action: manipulation;
                 margin: 10px auto;
-        }
-        
-        .getbutton:hover {
-            background-color: rgb(244, 7, 66);
-        }
-        
-        @media (min-width: 768px) {
-            .getbutton {
-            padding: 1rem 2rem;
             }
-        }
+        
+            .getbutton:hover {
+                background-color: rgb(244, 7, 66);
+            }
+        
+            @media (min-width: 768px) {
+                .getbutton {
+                    padding: 1rem 2rem;
+                }
+            }
         </style>
         <script language="javascript">
             function api() {
@@ -157,8 +157,6 @@
                     actionsDiv.classList.replace('hidden', 'visible');
                     let backDiv = document.getElementById('back');
                     backDiv.classList.add('hidden');
-                    let tokenInfo = document.getElementById('tokenInfo');
-                    tokenInfo.innerHTML = token;
                 }
             }
         </script>
@@ -242,7 +240,7 @@
                     <h4 class="right" style="margin-bottom: 0px;">Recente leveringen</h4>
                     <hr style="width:100%; margin: auto;">
                     <!-- GET request for getting all logs -->
-                <div class="endpoint" x-data="{
+                    <div class="endpoint" x-data="{
                     responsedata: '',
                     skip: 0,
                     limit: 100,
@@ -253,7 +251,8 @@
                                 {
                                     method: 'GET',
                                     headers: {
-                                        'Content-type': 'application/json; charset=UTF-8'
+                                        'Content-type': 'application/json; charset=UTF-8',
+                                        'Authorization': 'Bearer ' + getCookie('token')
                                     }
                                 }
                             )
@@ -273,7 +272,7 @@
                     }
                 }"x-init="getLogs">
                     <p><ul id="logs"></ul></p>
-                </div>           
+                </div>
                     
                 </div>
             </div>

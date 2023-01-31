@@ -129,16 +129,26 @@
     </head>
     <body>
         <header class="center">
-            <p><a href="index.html"><i class='fas fa-arrow-left'></i></a>&emsp;&emsp;&emsp;&emsp; Toegangsbeheer &emsp;&emsp;&emsp;&emsp;<a href="#"><i class="fa-solid fa-plus"></i></a></p>
+            <p style="font-weight: bold;"><a href="index.html"><i class='fas fa-arrow-left' style="color: rgb(255, 30, 86);"></i></a>&emsp;&emsp;&emsp;&emsp; Toegangsbeheer &emsp;&emsp;&emsp;&emsp;<a href="addgebruiker.html"><i class="fa-solid fa-plus" style="color: rgb(255, 30, 86);"></i></a></p>
             <input id="input" type="text" placeholder="&#128269; Zoek op gebruiker">
         </header>
         
         <ul id="gebruikers"></ul>
         
         <script>
-            $.get(api() + "/users/", function(data, status){
-                for (var i = 0; i < data.length; i++) {
-                    $("#gebruikers").append("<li><a href='gebruiker.html?user=" + data[i].id + "'>" + data[i].name + "</li>")
+            if( getCookie('token', false) == ''){ location.assign('login.html') }
+            
+            var settings = {
+                "url": api() + "/users/",
+                "method": "GET",
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + getCookie("token")
+                }
+            };
+            $.ajax(settings).done(function (response) {
+                for (var i = 0; i < response.length; i++) {
+                    $("#gebruikers").append("<li><a href='gebruiker.html?user=" + response[i].id + "'>" + response[i].name + "</li>")
                 }
             });
             

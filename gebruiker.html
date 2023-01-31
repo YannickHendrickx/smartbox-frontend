@@ -9,6 +9,7 @@
         <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
         <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
         <script src="https://kit.fontawesome.com/2b95cf3289.js" crossorigin="anonymous"></script>
+        <script defer src="https://unpkg.com/alpinejs@3.5.0/dist/cdn.min.js"></script>
 
         <style>
             h1 {
@@ -87,7 +88,7 @@
     </head>
     <body>
         <header>
-            <a href="gebruikers.html"><i class='fas fa-arrow-left'></i></a>
+            <a href="gebruikers.html"><i class='fas fa-arrow-left' style="color: rgb(255, 30, 86);"></i></a>
             <h1>Toegangsbeheer</h1>
         </header>
         <section class="center">
@@ -95,54 +96,79 @@
             <h3 id="gebruiker"></h3>
             <hr>
             <p>Pincode:&emsp;&emsp;<span id="access-code"></span></p>
-            <div id="status" class="hidden"></div>
-            <div id="hashed-password" class="hidden"></div>
+            <p>Status:&emsp;&emsp;<span id="status"></span></p>
+            <p id="hashed-password" class="hidden"></p>
             <hr>
-            <!-- PUT request for updating pin -->
-            <div class="endpoint auth" x-data="{
-                responsedata: '',
-                name: '',
-                password: '',
-                access_code:'1357',
-                async addUser() {
-                    this.responsedata = await (await fetch(api() + '/users/', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            name: this.name
-                            password: this.password
-                            is_active: true
-                            access_code: this.access_code
-                        }),
-                        headers: {
-                            'Content-type': 'application/json; charset=UTF-8',
-                            'Authorization': 'Bearer ' + getCookie('token')
-                        }
-                    })).json();
-                },
-            }">
-                <p><strong>Add a new user to the application:</strong></p>
-                <input type="text" x-model="newuser">
-                <button x-on:click="addUser">Genereer nieuwe code</button>
-            <button onclick="test()">Toegang ontnemen</button>
-
+            <!-- PATCh request for updating code -->
+            <div class="endpoint auth">
+                <button onClick="updateCode()">Genereer nieuwe code</button>
+            </div>
+            <!-- PATCH request for updating status -->
+            <div class="endpoint auth">
+                <button onClick="updateAccess()">Toggle Status</button>
+            </div>
             <script>
+                if( getCookie('token', false) == ''){ location.assign('login.html') }
+                
                 var params = getUrlVars()
+                
                 if(params.user == "" | params.user == null) {
                     // No user specified
-                    // TODO: redirect to userlist
                     alert("ERROR: no user specified!")
                     window.location.href = "gebruikers.html"
                 } else {
-                    $.get(api() + "/users/" + params.user, function(data, status){
-                        $("#gebruiker").html(data.name)
-                        $("#access-code").html(data.access_code)
-                        $("#status").html(data.is_active)
-                        $("#hashed-password").html(data.hashed_password)
+                    var settings = {
+                        "url": api() + "/users/" + params.user,
+                        "method": "GET",
+                        "headers": {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + getCookie("token")
+                        }
+                    };
+                    $.ajax(settings).done(function (response) {
+                        $("#gebruiker").html(response.name)
+                        $("#access-code").html(response.access_code)
+                        $("#status").html(String(response.is_active))
+                        $("#hashed-password").html(response.hashed_password)
                     });
                 }
                 
-                var test = function() {
-                    alert("Hashed password: " + $("#hashed-password").text())
+                var updateCode = function() {
+                    var newCode = (Math.floor(Math.random() * 10000)).toString().padStart(4, '0')
+                    var settings = {
+                        "url": api() + "/users/" + params.user,
+                        "method": "PATCH",
+                        "headers": {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + getCookie("token")
+                        },
+                        "data": JSON.stringify({
+                            "is_active": $("#status").text(),
+                            "access_code": newCode
+                        })
+                    };
+                    $.ajax(settings).done(function (response) {
+                        $("#access-code").html(response.access_code)
+                    });
+                }
+                var updateAccess = function() {
+                    var newStatus = false
+                    if($("#status").text() == "false"){ newStatus = true}
+                    var settings = {
+                        "url": api() + "/users/" + params.user,
+                        "method": "PATCH",
+                        "headers": {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + getCookie("token")
+                        },
+                        "data": JSON.stringify({
+                            "is_active": newStatus,
+                            "access_code": $("#access-code").text()
+                        })
+                    };
+                    $.ajax(settings).done(function (response) {
+                        $("#status").html(String(response.is_active))
+                    });
                 }
             </script>
         </section>
